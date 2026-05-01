@@ -4,6 +4,7 @@ from database import db
 from utils.auth import send_otp, verify_otp, verify_password
 from utils.encryption import encryptor
 import states
+from pyrogram.handlers import CallbackQueryHandler, MessageHandler
 
 async def add_account_callback(client: Client, callback_query: CallbackQuery):
     """Start add account flow"""
@@ -209,21 +210,37 @@ async def handle_password_input(client: Client, message: Message):
         )
         states.clear_state(user_id)
 
+
+
 def setup_add_account_handlers(app: Client):
     """Register add account handlers"""
-    app.add_handler(filters.callback_data("add_account"), add_account_callback)
+
+    # ✅ FIXED callback handler
     app.add_handler(
-        filters.text & filters.private & 
-        filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_PHONE),
-        handle_phone_input
+        CallbackQueryHandler(add_account_callback, filters.regex("^add_account$"))
     )
+
+    # ✅ Message handlers (ye already sahi hai, bas proper handler use karo)
     app.add_handler(
-        filters.text & filters.private & 
-        filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_OTP),
-        handle_otp_input
+        MessageHandler(
+            handle_phone_input,
+            filters.text & filters.private &
+            filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_PHONE)
+        )
     )
+
     app.add_handler(
-        filters.text & filters.private & 
-        filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_PASSWORD),
-        handle_password_input
+        MessageHandler(
+            handle_otp_input,
+            filters.text & filters.private &
+            filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_OTP)
+        )
+    )
+
+    app.add_handler(
+        MessageHandler(
+            handle_password_input,
+            filters.text & filters.private &
+            filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_PASSWORD)
+        )
     )
