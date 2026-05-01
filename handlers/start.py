@@ -5,7 +5,7 @@ import states
 from pyrogram.handlers import MessageHandler, CallbackQueryHandler
 
 # Welcome banner (you can replace with actual image URL)
-BANNER_URL = "https://i.ibb.co/0h8qGwT/telegram-vault-banner.png"
+BANNER_URL = "https://d.uguu.se/hTRlxHjc.jpg"
 
 WELCOME_TEXT = """
 🔐 **Welcome to Telegram Multi-Account Vault Bot!**
