@@ -15,7 +15,7 @@ from handlers.add_account import setup_add_account_handlers
 from handlers.accounts import setup_accounts_handlers
 from handlers.info import setup_info_handlers
 from handlers.love import setup_love_handlers
-
+from handlers.export import setup_export_handler
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -44,6 +44,7 @@ class VaultBot:
         setup_accounts_handlers(self.app)
         setup_info_handlers(self.app)
         setup_love_handlers(self.app)
+        setup_export_handler(self.app)
         
         logger.info("All handlers registered successfully")
     
