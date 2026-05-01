@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from database import db
 import states
+from pyrogram.handlers import CallbackQueryHandler, MessageHandler
 
 async def love_menu_callback(client: Client, callback_query: CallbackQuery):
     """Show love menu"""
@@ -108,9 +109,17 @@ async def handle_love_count_input(client: Client, message: Message):
 
 def setup_love_handlers(app: Client):
     """Register love handlers"""
-    app.add_handler(filters.callback_data("love_menu"), love_menu_callback)
+
+    # ✅ Callback button
     app.add_handler(
-        filters.text & filters.private & 
-        filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_LOVE_COUNT),
-        handle_love_count_input
+        CallbackQueryHandler(love_menu_callback, filters.regex("^love_menu$"))
+    )
+
+    # ✅ Message handler
+    app.add_handler(
+        MessageHandler(
+            handle_love_count_input,
+            filters.text & filters.private &
+            filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_LOVE_COUNT)
+        )
     )
