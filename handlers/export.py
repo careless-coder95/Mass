@@ -3,6 +3,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from database import db
 from utils.pdf_generator import generate_accounts_pdf
+from pyrogram.handlers import MessageHandler
 
 async def export_pdf_handler(client: Client, message: Message):
     user_id = message.from_user.id
@@ -30,5 +31,12 @@ async def export_pdf_handler(client: Client, message: Message):
     except:
         pass
 
+
+
 def setup_export_handler(app: Client):
-    app.add_handler(filters.command("exportpdf") & filters.private, export_pdf_handler)
+    app.add_handler(
+        MessageHandler(
+            export_pdf_handler,
+            filters.command("exportpdf") & filters.private
+        )
+    )
