@@ -3,6 +3,7 @@ from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineK
 from database import db
 from utils.auth import get_user_info
 import states
+from pyrogram.handlers import CallbackQueryHandler, MessageHandler
 
 async def info_menu_callback(client: Client, callback_query: CallbackQuery):
     """Show info menu"""
@@ -161,12 +162,25 @@ async def save_user_info_callback(client: Client, callback_query: CallbackQuery)
     else:
         await callback_query.answer("❌ Failed to save!", show_alert=True)
 
+
+
 def setup_info_handlers(app: Client):
     """Register info handlers"""
-    app.add_handler(filters.callback_data("info_menu"), info_menu_callback)
-    app.add_handler(filters.callback_data("save_user_info"), save_user_info_callback)
+
+    # ✅ Callback buttons
     app.add_handler(
-        filters.text & filters.private & 
-        filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_INFO_INPUT),
-        handle_info_input
+        CallbackQueryHandler(info_menu_callback, filters.regex("^info_menu$"))
+    )
+
+    app.add_handler(
+        CallbackQueryHandler(save_user_info_callback, filters.regex("^save_user_info$"))
+    )
+
+    # ✅ Message input handler
+    app.add_handler(
+        MessageHandler(
+            handle_info_input,
+            filters.text & filters.private &
+            filters.create(lambda _, __, m: states.get_state(m.from_user.id) == states.States.WAIT_INFO_INPUT)
+        )
     )
