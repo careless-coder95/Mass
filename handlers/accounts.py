@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from database import db
 import states
+from pyrogram.handlers import CallbackQueryHandler
 
 async def view_accounts_callback(client: Client, callback_query: CallbackQuery):
     """Show list of saved accounts"""
@@ -100,5 +101,9 @@ async def view_single_account_callback(client: Client, callback_query: CallbackQ
 
 def setup_accounts_handlers(app: Client):
     """Register accounts handlers"""
-    app.add_handler(filters.callback_data("view_accounts"), view_accounts_callback)
-    app.add_handler(filters.regex(r"^view_account:"), view_single_account_callback)
+    app.add_handler(
+    CallbackQueryHandler(view_accounts_callback, filters.regex("^view_accounts$"))
+    )
+    app.add_handler(
+    CallbackQueryHandler(view_single_account_callback, filters.regex(r"^view_account:"))
+    )
