@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from database import db
 import states
+from pyrogram.handlers import MessageHandler, CallbackQueryHandler
 
 # Welcome banner (you can replace with actual image URL)
 BANNER_URL = "https://i.ibb.co/0h8qGwT/telegram-vault-banner.png"
@@ -81,7 +82,22 @@ Choose an option below:
     )
     await callback_query.answer()
 
+
 def setup_start_handlers(app: Client):
     """Register start handlers"""
-    app.add_handler(filters.command("start") & filters.private, start_command)
-    app.add_handler(filters.callback_data("main_menu"), main_menu_callback)
+
+    # ✅ /start command
+    app.add_handler(
+        MessageHandler(
+            start_command,
+            filters.command("start") & filters.private
+        )
+    )
+
+    # ✅ main menu button
+    app.add_handler(
+        CallbackQueryHandler(
+            main_menu_callback,
+            filters.regex("^main_menu$")
+        )
+    )
